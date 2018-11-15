@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics.pairwise import linear_kernel
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 dataSetOne = pd.DataFrame()
 dataSetTwo = pd.DataFrame()
 qualifiedMovies = pd.DataFrame()
+
+
 
 def readDataSets():
     global dataSetOne, dataSetTwo
@@ -42,9 +46,25 @@ def getTopPopularMovies():
     mostPopularMovies = qualifiedMovies[['original_title', 'score']].head(10)
     return mostPopularMovies
 
+def getSimilarDescriptionMovies(name):
+    tfidf = TfidfVectorizer(stop_words='english')
+    dataSetTwo['overview'] = dataSetTwo['overview'].fillna('')
+    tfidf_matrix = tfidf.fit_transform(dataSetTwo['overview'])
+    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+    indices = pd.Series(dataSetTwo.index, index=dataSetTwo['original_title']).drop_duplicates()
+    return getRecommendationsBasedOnDesc(name, cosine_sim, indices)
+
+
+def getRecommendationsBasedOnDesc(title, cosine_sim, indices):
+    idx = indices[title]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:11]
+    movie_indices = [i[0] for i in sim_scores]
+    return dataSetTwo['original_title'].iloc[movie_indices]
 
 def putLineSeparation():
-    print("-----------------------------------------------------------")
+    print("--------------------------------------------------------*---")
 
 # Code launch
 readDataSets()
@@ -52,3 +72,5 @@ combineDataSets()
 print(getDemographicRecom())
 putLineSeparation()
 print(getTopPopularMovies())
+putLineSeparation()
+print(getSimilarDescriptionMovies("The Avengers"))
