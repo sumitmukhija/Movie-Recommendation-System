@@ -3,7 +3,7 @@ import numpy as np
 
 dataSetOne = pd.DataFrame()
 dataSetTwo = pd.DataFrame()
-
+qualifiedMovies = pd.DataFrame()
 
 def readDataSets():
     global dataSetOne, dataSetTwo
@@ -17,8 +17,9 @@ def combineDataSets():
     dataSetTwo = dataSetTwo.merge(dataSetOne, on="id")
 
 
-def demographicRecom():
+def getDemographicRecom():
     # Computing weighted average for votes and users.
+    global qualifiedMovies
     averageMeanAcrossDataSet = dataSetTwo["vote_average"].mean()
     minimumNumOfVotesToQualify = dataSetTwo["vote_count"].quantile(
         0.9
@@ -33,11 +34,21 @@ def demographicRecom():
     weightedRating= ((numberOfVotesForMovie/(numberOfVotesForMovie + minimumNumOfVotesToQualify)) * averageMovieRating) + ((minimumNumOfVotesToQualify/(minimumNumOfVotesToQualify + numberOfVotesForMovie)) *  averageMeanAcrossDataSet)
     qualifiedMovies["score"] = weightedRating
 
-    qualifiedMovies = qualifiedMovies.sort_values('score', ascending=False)
-    print(qualifiedMovies[['original_title', 'score']].head(10))
+    bestMovies = qualifiedMovies.sort_values('score', ascending=False)
+    return bestMovies[['original_title', 'score']].head(10)
 
+def getTopPopularMovies():
+    qualifiedMovies.sort_values('popularity', ascending=False)
+    mostPopularMovies = qualifiedMovies[['original_title', 'score']].head(10)
+    return mostPopularMovies
+
+
+def putLineSeparation():
+    print("-----------------------------------------------------------")
 
 # Code launch
 readDataSets()
 combineDataSets()
-demographicRecom()
+print(getDemographicRecom())
+putLineSeparation()
+print(getTopPopularMovies())
