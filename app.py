@@ -69,8 +69,11 @@ def putLineSeparation():
 # Code launch
 readDataSets()
 combineDataSets()
+print("DEMOGRAPHIC RECOMMENDATIONS")
 print(getDemographicRecom())
 putLineSeparation()
+print("TOP POPULAR RECOMMENDATIONS")
 print(getTopPopularMovies())
 putLineSeparation()
-print(getSimilarDescriptionMovies("The Avengers"))
+print("MOVIES LIKE THE DARK KNIGHT")
+print(getSimilarDescriptionMovies("The Dark Knight"))
